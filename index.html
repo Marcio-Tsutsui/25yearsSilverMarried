@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>25 anos de amor 💍</title>
+    <link rel="stylesheet" href="./src/assets/css/style.css">
+    <!-- CORREÇÃO: adicionado defer para garantir que o DOM esteja pronto -->
+    <script src="./src/js/correctanswer.js" defer></script>
+</head>
+<!-- CORREÇÃO: execSom movido para evento correto (click/touchstart é mais confiável que mouseover para autoplay) -->
+<body onclick="execSom()">
+    <div class="center-box">
+        <h2 class="typewriter h1-effect">Se você pudesse voltar</h2>
+        <h2 class="typewriter h2-effect">no tempo 25 anos atrás...</h2>
+        <h2 class="typewriter h3-effect">Você casaria novamente comigo?</h2>
+
+        <div class="buttons">
+            <button id="sim-button" onclick="goToYes()">SIM 💖</button>
+            <button id="nao-button" onclick="runAway()">NÃO 😅</button>
+        </div>
+    </div>
+    
+    <audio style="visibility:hidden" loop id="playaudio">
+        <source src="./src/assets/sounds/mirotenrosen.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="nao-sound" src="./src/assets/sounds/naoconsegueneh.mp3"></audio>
+    <audio id="sim-sound" src="./src/assets/sounds/seaindaexisteamor.mp3"></audio>
+    <audio id="typing-sound" src="./src/assets/sounds/maquinadeescrever.mp3"></audio>
+</body>
+</html>

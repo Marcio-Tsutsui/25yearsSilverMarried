@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Você disse SIM ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Sofia&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body { height: 100%; }
+
+        body {
+            width: 100%;
+            background-color: #1a0a0f;
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            cursor: default;
+            position: relative;
+        }
+
+        /* ===== VÍDEO DE FUNDO (camada borrada, preenche a tela) ===== */
+        #video-bg-blur {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;       /* preenche cortando as bordas */
+            filter: blur(35px) brightness(0.4);
+            transform: scale(1.1);   /* evita ver borda transparente do blur */
+            z-index: -2;
+        }
+
+        /* Camada escura adicional por cima do blur, para garantir contraste do texto */
+        #video-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.6) 100%);
+            z-index: -1;
+        }
+
+        /* ===== VÍDEO PRINCIPAL (centralizado, nítido, formato vertical original) ===== */
+        #video-main {
+            position: relative;
+            max-height: 92vh;
+            max-width: 92vw;
+            height: auto;
+            width: auto;
+            border-radius: 16px;
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255,0.08);
+            z-index: 1;
+        }
+
+        /* ===== CORAÇÕES FLUTUANTES (fundo) ===== */
+        #hearts-bg {
+            position: fixed;
+            width: 100%; height: 100%;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .heart-bg {
+            position: absolute;
+            bottom: -60px;
+            font-size: 20px;
+            opacity: 0;
+            animation: floatUp linear forwards;
+        }
+
+        @keyframes floatUp {
+            0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 0; }
+            10%  { opacity: 0.6; }
+            100% { transform: translateY(-110vh) rotate(360deg) scale(1.4); opacity: 0; }
+        }
+
+        /* ===== TELA DE CELEBRAÇÃO ===== */
+        #celebration {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            animation: fadeIn 1.2s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .celebration-content {
+            text-align: center;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+            z-index: 1002;
+            animation: celebReveal 1.5s ease forwards;
+        }
+
+        @keyframes celebReveal {
+            from { transform: translateY(30px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+
+        .celebration-content h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            color: #999B9B;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 30px rgba(240, 180, 80, 0.5);
+            letter-spacing: 0.02em;
+        }
+
+        .celebration-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: #e8a8b8;
+            margin-bottom: 2rem;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .divider-line {
+            width: 80px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #c08060, transparent);
+        }
+
+        .divider-heart { color: #e06070; font-size: 1.2rem; }
+
+        .celebration-content p {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            color: #d4b8c0;
+            line-height: 1.9;
+            margin-bottom: 1rem;
+        }
+
+        .years-badge {
+            border: 1px solid rgba(200, 150, 100, 0.4);
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem auto 1.5rem;
+            background: rgba(200, 150, 80, 0.08);
+            box-shadow: 0 0 30px rgba(200, 150, 80, 0.15), inset 0 0 20px rgba(200, 150, 80, 0.05);
+        }
+
+        .years-badge .number {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: #f0c080;
+            line-height: 1;
+        }
+
+        .years-badge .label {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.6rem;
+            color: #c09060;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        /* Stars */
+        #stars {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: white;
+            animation: twinkle linear infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50%       { opacity: 1; transform: scale(1); }
+        }
+
+        /* ===== CONTORNO PRETO NO TEXTO (legibilidade sobre o vídeo) =====
+           Usa múltiplas sombras pequenas ao redor de cada letra, criando
+           um efeito de "contorno" que funciona em todos os navegadores. */
+        .text-outline {
+            text-shadow:
+                -1.5px -1.5px 0 #000,
+                 1.5px -1.5px 0 #000,
+                -1.5px  1.5px 0 #000,
+                 1.5px  1.5px 0 #000,
+                -1.5px  0     0 #000,
+                 1.5px  0     0 #000,
+                 0     -1.5px 0 #000,
+                 0      1.5px 0 #000,
+                 0  0 12px rgba(0,0,0,0.6);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ===== VÍDEO DE FUNDO =====
+         Troque o caminho abaixo pelo nome real do seu arquivo de vídeo.
+         As duas tags <video> usam o MESMO arquivo, apenas exibido de formas diferentes. -->
+    <video id="video-bg-blur" autoplay muted loop playsinline>
+        <source src="../src/assets/videos/lovesilver.mp4" type="video/mp4">
+    </video>
+    <div id="video-overlay"></div>
+
+    <video id="video-main" autoplay muted loop playsinline>
+        <source src="../src/assets/videos/lovesilver.mp4" type="video/mp4">
+    </video>
+
+    <div id="hearts-bg"></div>
+    <div id="stars"></div>
+
+    <div id="celebration">
+        <div id="hearts-celebration" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1001;overflow:hidden;"></div>
+        <div class="celebration-content">
+            <h1 class="text-outline">❤️ Bodas de Prata</h1>
+            <h2 class="text-outline">25 anos você me aguentando!</h2>
+
+            <div class="years-badge">
+                <span class="number text-outline">25</span>
+                <span class="label text-outline">anos</span>
+            </div>
+
+            <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-heart">💍</span>
+                <div class="divider-line"></div>
+            </div>
+
+            <p class="text-outline"> Parece que foi ontem que olhava de longe, por trás daquela máscara</p>
+            <p class="text-outline">Parece que foi ontem que fazia o trabalho correndo para poder ir te ver na porta</p>
+            <p class="text-outline">Parece que foi ontem que limpei a neve para você passar (e Você nem percebeu que foi eu!)</p>
+            <p class="text-outline">E eu te escolheria em todas as vezes que você perguntasse:<br>Você tem certeza?</p>
+
+            <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-heart">✨</span>
+                <div class="divider-line"></div>
+            </div>
+
+            <p class="text-outline" style="font-style:italic; color: #c0a0a8; font-size: 0.95em;">
+                "Sei que você acha que eu não lavo as mãos direito, mas sempre que é para te abraçar, eu lavo da melhor maneira possível!"
+            </p>
+        </div>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="../src/assets/sounds/seaindaexisteamor.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const heartEmojis = ["❤️", "💖", "💕", "💗", "💓", "💝"];
+
+        function createStars() {
+            const container = document.getElementById("stars");
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement("div");
+                star.classList.add("star");
+                const size = Math.random() * 2 + 1;
+                star.style.cssText = `
+                    width: ${size}px; height: ${size}px;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    animation-duration: ${Math.random() * 3 + 2}s;
+                    animation-delay: ${Math.random() * 3}s;
+                `;
+                container.appendChild(star);
+            }
+        }
+
+        function createBgHeart() {
+            const heart = document.createElement("span");
+            heart.classList.add("heart-bg");
+            heart.innerHTML = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+            heart.style.left = Math.random() * 100 + "vw";
+            const size = Math.random() * 16 + 12;
+            heart.style.fontSize = size + "px";
+            const duration = Math.random() * 5 + 7;
+            heart.style.animationDuration = duration + "s";
+            document.getElementById("hearts-bg").appendChild(heart);
+            setTimeout(() => heart.remove(), duration * 1000);
+        }
+
+        function burstHearts(container, count) {
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement("span");
+                    heart.style.cssText = `
+                        position: absolute;
+                        bottom: -60px;
+                        left: ${Math.random() * 100}%;
+                        font-size: ${Math.random() * 24 + 14}px;
+                        opacity: 0;
+                        animation: floatUp ${Math.random() * 3 + 5}s linear forwards;
+                    `;
+                    heart.innerHTML = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+                    container.appendChild(heart);
+                    setTimeout(() => heart.remove(), 8000);
+                }, i * 80);
+            }
+        }
+
+        const styleSheet = document.createElement("style");
+        styleSheet.textContent = `
+            @keyframes floatUp {
+                0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 0; }
+                10%  { opacity: 0.8; }
+                100% { transform: translateY(-110vh) rotate(360deg) scale(1.5); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+        window.addEventListener("DOMContentLoaded", () => {
+            createStars();
+            setInterval(createBgHeart, 1200);
+
+            // Burst inicial de corações
+            const celHearts = document.getElementById("hearts-celebration");
+            burstHearts(celHearts, 30);
+            setInterval(() => burstHearts(celHearts, 5), 1500);
+
+            // Toca música
+            const audio = document.getElementById("bg-music");
+            if (audio) {
+                audio.volume = 0.3;
+                audio.play().catch(() => {});
+            }
+        });
+    </script>
+</body>
+</html>
